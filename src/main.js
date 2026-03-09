@@ -11,11 +11,11 @@ const preloadFill = document.getElementById("preloadFill");
 const preloadPct = document.getElementById("preloadPct");
 
 const ASSET_FALLBACKS = [
-  "./assets/bg-orbital-dawn-4k.svg",
-  "./assets/bg-flood-grid-4k.svg",
-  "./assets/bg-civic-bunker-4k.svg",
-  "./assets/bg-tribunal-core-4k.svg",
-  "./assets/bg-botanic-lab-4k.svg"
+  "/game-assets/bg-orbital-dawn-4k.svg",
+  "/game-assets/bg-flood-grid-4k.svg",
+  "/game-assets/bg-civic-bunker-4k.svg",
+  "/game-assets/bg-tribunal-core-4k.svg",
+  "/game-assets/bg-botanic-lab-4k.svg"
 ];
 
 function collectSceneAssets() {

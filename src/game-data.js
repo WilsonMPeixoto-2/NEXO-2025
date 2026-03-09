@@ -53,7 +53,7 @@ export const SCENES = {
     chapter: "Ato 0 | Convocacao",
     theme: "clean",
     backdrop: "orbital-dawn",
-    image: "./assets/hq-4k/bg_title_screen.jpg",
+    image: "/game-assets/hq-4k/bg_title_screen.jpg",
     text:
       "Voce sabia que pode ser um super-heroi de verdade e salvar nossa cidade? Pense rapido e nao deixe nossa bateria acabar.",
     choices: [
@@ -71,7 +71,7 @@ export const SCENES = {
     chapter: "Ato 0 | Personalizacao",
     theme: "cyber",
     backdrop: "orbital-dawn",
-    image: "./assets/hq-4k/bg_capsula_limpa.jpg",
+    image: "/game-assets/hq-4k/bg_capsula_limpa.jpg",
     text: "Primeiro ajuste: qual genero representa seu avatar para a missao de 2050?",
     choices: [
       {
@@ -96,7 +96,7 @@ export const SCENES = {
     chapter: "Ato 0 | Personalizacao",
     theme: "cyber",
     backdrop: "orbital-dawn",
-    image: "./assets/hq-4k/bg_capsula_limpa.jpg",
+    image: "/game-assets/hq-4k/bg_capsula_limpa.jpg",
     text: "Agora defina a faixa etaria do seu personagem.",
     choices: [
       {
@@ -121,7 +121,7 @@ export const SCENES = {
     chapter: "Ato 0 | Personalizacao",
     theme: "cyber",
     backdrop: "orbital-dawn",
-    image: "./assets/hq-4k/bg_capsula_limpa.jpg",
+    image: "/game-assets/hq-4k/bg_capsula_limpa.jpg",
     text:
       "Escolha a cor de cabelo com identidade G.E.T. para o seu avatar em campo.",
     choices: [
@@ -151,7 +151,7 @@ export const SCENES = {
     chapter: "Ato 0 | Personalizacao",
     theme: "clean",
     backdrop: "orbital-dawn",
-    image: "./assets/hq-4k/bg_capsula_limpa.jpg",
+    image: "/game-assets/hq-4k/bg_capsula_limpa.jpg",
     text: "Quais poderes voce possui hoje e que podem te ajudar a alcancar seus sonhos?",
     choices: [
       {
@@ -190,7 +190,7 @@ export const SCENES = {
     chapter: "Ato 0 | Personalizacao",
     theme: "clean",
     backdrop: "orbital-dawn",
-    image: "./assets/hq-4k/bg_capsula_limpa.jpg",
+    image: "/game-assets/hq-4k/bg_capsula_limpa.jpg",
     text: "Escolha sua profissao do futuro para abrir seu protocolo de missao.",
     choices: [
       {
@@ -257,7 +257,7 @@ export const SCENES = {
     chapter: "Ato 1 | Imersao",
     theme: "clean",
     backdrop: "orbital-dawn",
-    image: "./assets/hq-4k/bg_capsula_limpa.jpg",
+    image: "/game-assets/hq-4k/bg_capsula_limpa.jpg",
     text:
       "Iniciando simulacao. Ano de destino: 2050. Status da cidade: instavel. Condicoes climaticas: adversas.",
     choices: [
@@ -275,8 +275,8 @@ export const SCENES = {
     chapter: "Ato 1 | Ruptura",
     theme: "glitch",
     backdrop: "flood-grid",
-    image: "./assets/hq-4k/bg_glitch_screen.jpg",
-    npc: "./assets/hq-4k/npc_security_drone.png",
+    image: "/game-assets/hq-4k/bg_glitch_screen.jpg",
+    npc: "/game-assets/hq-4k/npc_security_drone.png",
     text:
       "Pane total no modulo central! A cidade entrou em modo de inundacao e perda energetica. Ejetando equipe para resposta imediata.",
     choices: [
@@ -294,8 +294,8 @@ export const SCENES = {
     chapter: "Ato 1 | Ruptura",
     theme: "distopic",
     backdrop: "civic-bunker",
-    image: "./assets/hq-4k/bg_baia_distopica.jpg",
-    npc: "./assets/hq-4k/npc_mentor_sujo.png",
+    image: "/game-assets/hq-4k/bg_baia_distopica.jpg",
+    npc: "/game-assets/hq-4k/npc_mentor_sujo.png",
     imageAlt: "Baia de Guanabara em 2050 em estado critico",
     text:
       "A Bacia da Baia de Guanabara atingiu nivel de risco. Corredores escolares estao ilhados e o sistema de drenagem parou.",
@@ -314,8 +314,8 @@ export const SCENES = {
     chapter: "Ato 1 | Reagrupamento",
     theme: "distopic",
     backdrop: "civic-bunker",
-    image: "./assets/hq-4k/bg_safehouse_bunker.jpg",
-    npc: "./assets/hq-4k/npc_cadu_explaining.png",
+    image: "/game-assets/hq-4k/bg_safehouse_bunker.jpg",
+    npc: "/game-assets/hq-4k/npc_cadu_explaining.png",
     text:
       "Voce chegou ao Colaboratorio. Mila abriu tres terminais de resposta e um corredor final em modo corrida.",
     choices: [
@@ -332,8 +332,8 @@ export const SCENES = {
     chapter: "Ato 2 | Missao",
     theme: "distopic",
     backdrop: "civic-bunker",
-    image: "./assets/hq-4k/bg_safehouse_bunker.jpg",
-    npc: "./assets/hq-4k/npc_mila_neutral.png",
+    image: "/game-assets/hq-4k/bg_safehouse_bunker.jpg",
+    npc: "/game-assets/hq-4k/npc_mila_neutral.png",
     text:
       "Linha de corte: estabilize um terminal agora. Depois voce corre para religar os Arcos antes da bateria zerar.",
     choices: [
@@ -369,8 +369,8 @@ export const SCENES = {
     chapter: "Ato 2 | Missao IA",
     theme: "cyber",
     backdrop: "tribunal-core",
-    image: "./assets/hq-4k/bg_central_torre.jpg",
-    npc: "./assets/hq-4k/npc_zion_ia.png",
+    image: "/game-assets/hq-4k/bg_central_torre.jpg",
+    npc: "/game-assets/hq-4k/npc_zion_ia.png",
     text: "A IA Zion bloqueou o acesso. Qual protocolo voce executa?",
     choices: [
       {
@@ -394,8 +394,8 @@ export const SCENES = {
     chapter: "Ato 2 | Missao IA",
     theme: "glitch",
     backdrop: "tribunal-core",
-    image: "./assets/hq-4k/cg_cadu_facepalm.jpg",
-    npc: "./assets/hq-4k/npc_cadu_sarcastic.png",
+    image: "/game-assets/hq-4k/cg_cadu_facepalm.jpg",
+    npc: "/game-assets/hq-4k/npc_cadu_sarcastic.png",
     text:
       "Brute force contra a Zion? Agora a matriz fechou tudo. Respira, volta ao protocolo SME e entra pela rota limpa.",
     choices: [
@@ -413,7 +413,7 @@ export const SCENES = {
     chapter: "Ato 2 | Missao Malha",
     theme: "cyber",
     backdrop: "flood-grid",
-    image: "./assets/hq-4k/bg_estadio_submerso.jpg",
+    image: "/game-assets/hq-4k/bg_estadio_submerso.jpg",
     text: "A bomba geodesica do Estadio esta sem fase. O que voce faz?",
     choices: [
       {
@@ -437,8 +437,8 @@ export const SCENES = {
     chapter: "Ato 2 | Missao Malha",
     theme: "distopic",
     backdrop: "flood-grid",
-    image: "./assets/hq-4k/bg_estadio_submerso.jpg",
-    npc: "./assets/hq-4k/npc_cadu_panicking.png",
+    image: "/game-assets/hq-4k/bg_estadio_submerso.jpg",
+    npc: "/game-assets/hq-4k/npc_cadu_panicking.png",
     text: "A bomba travou no pico. Recalibre com metodo fino.",
     choices: [
       {
@@ -455,8 +455,8 @@ export const SCENES = {
     chapter: "Ato 2 | Missao Tribunal",
     theme: "glitch",
     backdrop: "tribunal-core",
-    image: "./assets/hq-4k/bg_auditorio_ia.jpg",
-    npc: "./assets/hq-4k/npc_elder_diplomat.png",
+    image: "/game-assets/hq-4k/bg_auditorio_ia.jpg",
+    npc: "/game-assets/hq-4k/npc_elder_diplomat.png",
     text: "Defina por que humanos devem co-governar a cidade com as IAs.",
     choices: [
       {
@@ -480,8 +480,8 @@ export const SCENES = {
     chapter: "Ato 2 | Missao Tribunal",
     theme: "distopic",
     backdrop: "tribunal-core",
-    image: "./assets/hq-4k/bg_auditorio_ia.jpg",
-    npc: "./assets/hq-4k/npc_elder_diplomat.png",
+    image: "/game-assets/hq-4k/bg_auditorio_ia.jpg",
+    npc: "/game-assets/hq-4k/npc_elder_diplomat.png",
     text: "Proposta recusada por falta de base. Tente novamente com dados.",
     choices: [
       {
@@ -498,7 +498,7 @@ export const SCENES = {
     chapter: "Ato 2 | Missao Bioma",
     theme: "distopic",
     backdrop: "botanic-lab",
-    image: "./assets/hq-4k/bg_jardim_mutante.jpg",
+    image: "/game-assets/hq-4k/bg_jardim_mutante.jpg",
     text: "Esporos toxicos cobriram o Jardim. Qual acao voce executa?",
     choices: [
       {
@@ -522,8 +522,8 @@ export const SCENES = {
     chapter: "Ato 2 | Missao Bioma",
     theme: "glitch",
     backdrop: "botanic-lab",
-    image: "./assets/hq-4k/bg_jardim_mutante.jpg",
-    npc: "./assets/hq-4k/npc_mila_neutral.png",
+    image: "/game-assets/hq-4k/bg_jardim_mutante.jpg",
+    npc: "/game-assets/hq-4k/npc_mila_neutral.png",
     text: "Negativo. Sem ecossistema vivo, sem cidade. Reaplique dose calibrada.",
     choices: [
       {
@@ -540,8 +540,8 @@ export const SCENES = {
     chapter: "Ato 2 | Missao IA",
     theme: "cyber",
     backdrop: "tribunal-core",
-    image: "./assets/hq-4k/cg_hacker_matrix.jpg",
-    npc: "./assets/hq-4k/npc_zion_ia.png",
+    image: "/game-assets/hq-4k/cg_hacker_matrix.jpg",
+    npc: "/game-assets/hq-4k/npc_zion_ia.png",
     text:
       "Matriz de defesa desmontada. A Torre Central voltou a operar em modo seguro para a rede escolar.",
     choices: [
@@ -559,7 +559,7 @@ export const SCENES = {
     chapter: "Ato 2 | Missao Malha",
     theme: "clean",
     backdrop: "flood-grid",
-    image: "./assets/hq-4k/cg_engineer_conduit.jpg",
+    image: "/game-assets/hq-4k/cg_engineer_conduit.jpg",
     text:
       "Conduites drenantes reativados. A agua recuou e os corredores da cidade voltaram a respirar.",
     choices: [
@@ -577,8 +577,8 @@ export const SCENES = {
     chapter: "Ato 2 | Missao Tribunal",
     theme: "clean",
     backdrop: "tribunal-core",
-    image: "./assets/hq-4k/cg_diplomat_handshake.jpg",
-    npc: "./assets/hq-4k/npc_elder_diplomat.png",
+    image: "/game-assets/hq-4k/cg_diplomat_handshake.jpg",
+    npc: "/game-assets/hq-4k/npc_elder_diplomat.png",
     text:
       "Acordo firmado. O tribunal sintetico liberou energia para reerguer os pontos criticos da simulacao.",
     choices: [
@@ -596,7 +596,7 @@ export const SCENES = {
     chapter: "Ato 2 | Missao Bioma",
     theme: "clean",
     backdrop: "botanic-lab",
-    image: "./assets/hq-4k/cg_mutant_flower.jpg",
+    image: "/game-assets/hq-4k/cg_mutant_flower.jpg",
     text:
       "Bio-matriz restaurada. O ar urbano foi descontaminado e os sensores verdes retomaram o equilibrio.",
     choices: [
@@ -614,8 +614,8 @@ export const SCENES = {
     chapter: "Ato 2 | Missao",
     theme: "clean",
     backdrop: "civic-bunker",
-    image: "./assets/hq-4k/cg_hand_kit.jpg",
-    npc: "./assets/hq-4k/npc_mila_laughing.png",
+    image: "/game-assets/hq-4k/cg_hand_kit.jpg",
+    npc: "/game-assets/hq-4k/npc_mila_laughing.png",
     text:
       "Terminal estabilizado. Agora entra o protocolo arcade: corrida NEXO em tempo real para religar os Arcos da Lapa.",
     choices: [
@@ -633,7 +633,7 @@ export const SCENES = {
     chapter: "Ato 3 | Corrida",
     theme: "cyber",
     backdrop: "flood-grid",
-    image: "./assets/hq-4k/bg_painel_controle.jpg",
+    image: "/game-assets/hq-4k/bg_painel_controle.jpg",
     mode: "runner",
     runner: {
       durationSec: 28,
@@ -656,7 +656,7 @@ export const SCENES = {
     chapter: "Ato Final",
     theme: "clean",
     backdrop: "orbital-dawn",
-    image: "./assets/hq-4k/bg_rio_restaurado.jpg",
+    image: "/game-assets/hq-4k/bg_rio_restaurado.jpg",
     showRanking: true,
     text:
       "Linha do tempo estabilizada com excelencia. Score de impacto: {{impactScore}} e bateria final: {{battery}}%.",
@@ -675,7 +675,7 @@ export const SCENES = {
     chapter: "Ato Final | Elite",
     theme: "cyber",
     backdrop: "orbital-dawn",
-    image: "./assets/hq-4k/cg_diplomat_handshake.jpg",
+    image: "/game-assets/hq-4k/cg_diplomat_handshake.jpg",
     showRanking: true,
     text:
       "Performance de elite. Sua equipe entrou no nivel maximo com score {{impactScore}} e abriu bonus para a fase fisica.",
@@ -694,8 +694,8 @@ export const SCENES = {
     chapter: "Ato Final",
     theme: "distopic",
     backdrop: "civic-bunker",
-    image: "./assets/hq-4k/bg_rua_alagada_neon.jpg",
-    npc: "./assets/hq-4k/npc_mentor_sujo.png",
+    image: "/game-assets/hq-4k/bg_rua_alagada_neon.jpg",
+    npc: "/game-assets/hq-4k/npc_mentor_sujo.png",
     showRanking: true,
     text:
       "A cidade foi mantida em estado minimo. Score de impacto: {{impactScore}} e bateria final: {{battery}}%. Ainda ha trabalho duro pela frente.",
@@ -714,7 +714,7 @@ export const SCENES = {
     chapter: "Ciclo",
     theme: "clean",
     backdrop: "orbital-dawn",
-    image: "./assets/hq-4k/bg_title_screen.jpg",
+    image: "/game-assets/hq-4k/bg_title_screen.jpg",
     text:
       "Ciclo encerrado. Equipe pronta para nova rodada com outro grupo de estudantes.",
     choices: [

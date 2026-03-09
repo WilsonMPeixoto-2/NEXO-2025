@@ -16,11 +16,11 @@ function clamp(value, min, max) {
 }
 
 const BACKDROP_IMAGES = {
-  "orbital-dawn": "./assets/bg-orbital-dawn-4k.svg",
-  "flood-grid": "./assets/bg-flood-grid-4k.svg",
-  "civic-bunker": "./assets/bg-civic-bunker-4k.svg",
-  "tribunal-core": "./assets/bg-tribunal-core-4k.svg",
-  "botanic-lab": "./assets/bg-botanic-lab-4k.svg"
+  "orbital-dawn": "/game-assets/bg-orbital-dawn-4k.svg",
+  "flood-grid": "/game-assets/bg-flood-grid-4k.svg",
+  "civic-bunker": "/game-assets/bg-civic-bunker-4k.svg",
+  "tribunal-core": "/game-assets/bg-tribunal-core-4k.svg",
+  "botanic-lab": "/game-assets/bg-botanic-lab-4k.svg"
 };
 
 const ARCADE_MODE_KEY = "nexo2050_arcade_mode";
