@@ -65,6 +65,53 @@ function updatePreloadUI(done, total) {
   preloadPct.textContent = `${pct}%`;
 }
 
+function applyDebugParams(engine) {
+  try {
+    const search = new URLSearchParams(window.location.search);
+    const scene = search.get("scene");
+    if (!scene) {
+      return;
+    }
+
+    const profileKeys = ["gender", "age", "skinTone", "hairLength", "hair", "power", "profession"];
+    const profile = {};
+    profileKeys.forEach((key) => {
+      const value = search.get(key);
+      if (value) {
+        profile[key] = value;
+      }
+    });
+
+    Object.assign(engine.state.profile, profile);
+
+    const battery = Number.parseInt(search.get("battery") || "", 10);
+    if (!Number.isNaN(battery)) {
+      engine.state.battery = Math.max(0, Math.min(100, battery));
+    }
+
+    const impact = Number.parseInt(search.get("impact") || "", 10);
+    if (!Number.isNaN(impact)) {
+      engine.state.impactScore = Math.max(0, impact);
+    }
+
+    const team = search.get("team");
+    if (team) {
+      engine.state.teamName = team.trim().slice(0, 28) || engine.state.teamName;
+      engine.ranking.setTeamName(engine.state.teamName);
+    }
+
+    const flags = (search.get("flags") || "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    flags.forEach((flag) => engine.state.flags.add(flag));
+
+    engine.state.sceneId = scene;
+  } catch {
+    // Ignore malformed debug params and continue with the normal flow.
+  }
+}
+
 async function bootstrap() {
   const urls = collectSceneAssets();
   let failed = [];
@@ -86,6 +133,7 @@ async function bootstrap() {
   }
 
   const engine = new GameEngine(app);
+  applyDebugParams(engine);
   engine.start();
 }
 

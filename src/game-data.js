@@ -15,9 +15,21 @@ export const PROFILE_LABELS = {
     teen: "Adolescente"
   },
   hair: {
-    blue: "Cabelo azul",
-    yellow: "Cabelo amarelo",
-    red: "Cabelo vermelho"
+    black: "Cabelo preto",
+    brown: "Cabelo castanho",
+    copper: "Cabelo ruivo",
+    blonde: "Cabelo loiro"
+  },
+  skinTone: {
+    light: "Pele clara",
+    tan: "Pele dourada",
+    brown: "Pele morena",
+    deep: "Pele escura"
+  },
+  hairLength: {
+    short: "Cabelo curto",
+    medium: "Cabelo medio",
+    long: "Cabelo comprido"
   },
   power: {
     calc: "Calculo rapido",
@@ -41,6 +53,8 @@ export const DEFAULT_PROFILE = {
   gender: null,
   age: null,
   hair: null,
+  skinTone: null,
+  hairLength: null,
   power: null,
   profession: null
 };
@@ -103,13 +117,84 @@ export const SCENES = {
         label: "Crianca",
         detail: "Perfil de exploracao inicial",
         setProfile: { age: "child" },
-        to: "avatar_hair",
+        to: "avatar_skin",
         tone: "confirm"
       },
       {
         label: "Adolescente",
         detail: "Perfil de resposta avancada",
         setProfile: { age: "teen" },
+        to: "avatar_skin",
+        tone: "confirm"
+      }
+    ]
+  },
+
+  avatar_skin: {
+    speaker: "Console de Avatar",
+    chapter: "Ato 0 | Personalizacao",
+    theme: "cyber",
+    backdrop: "orbital-dawn",
+    image: "/game-assets/hq-4k/bg_capsula_limpa.jpg",
+    text: "Defina o tom de pele do protagonista para aproximar o avatar da equipe em campo.",
+    choices: [
+      {
+        label: "Pele clara",
+        detail: "Base luminosa",
+        setProfile: { skinTone: "light" },
+        to: "avatar_hair_style",
+        tone: "confirm"
+      },
+      {
+        label: "Pele dourada",
+        detail: "Base quente",
+        setProfile: { skinTone: "tan" },
+        to: "avatar_hair_style",
+        tone: "confirm"
+      },
+      {
+        label: "Pele morena",
+        detail: "Base urbana",
+        setProfile: { skinTone: "brown" },
+        to: "avatar_hair_style",
+        tone: "confirm"
+      },
+      {
+        label: "Pele escura",
+        detail: "Base profunda",
+        setProfile: { skinTone: "deep" },
+        to: "avatar_hair_style",
+        tone: "confirm"
+      }
+    ]
+  },
+
+  avatar_hair_style: {
+    speaker: "Console de Avatar",
+    chapter: "Ato 0 | Personalizacao",
+    theme: "cyber",
+    backdrop: "orbital-dawn",
+    image: "/game-assets/hq-4k/bg_capsula_limpa.jpg",
+    text: "Agora escolha o comprimento do cabelo do seu avatar.",
+    choices: [
+      {
+        label: "Cabelo curto",
+        detail: "Leitura agil",
+        setProfile: { hairLength: "short" },
+        to: "avatar_hair",
+        tone: "confirm"
+      },
+      {
+        label: "Cabelo medio",
+        detail: "Equilibrio visual",
+        setProfile: { hairLength: "medium" },
+        to: "avatar_hair",
+        tone: "confirm"
+      },
+      {
+        label: "Cabelo comprido",
+        detail: "Silhueta marcante",
+        setProfile: { hairLength: "long" },
         to: "avatar_hair",
         tone: "confirm"
       }
@@ -126,21 +211,27 @@ export const SCENES = {
       "Escolha a cor de cabelo com identidade G.E.T. para o seu avatar em campo.",
     choices: [
       {
-        label: "Azul eletrico",
-        detail: "Estilo tecnico",
-        setProfile: { hair: "blue" },
+        label: "Preto carbono",
+        detail: "Leitura forte",
+        setProfile: { hair: "black" },
         to: "power_pick"
       },
       {
-        label: "Amarelo neon",
-        detail: "Estilo estrategico",
-        setProfile: { hair: "yellow" },
+        label: "Castanho quente",
+        detail: "Leitura natural",
+        setProfile: { hair: "brown" },
         to: "power_pick"
       },
       {
-        label: "Vermelho pulsante",
-        detail: "Estilo de impacto",
-        setProfile: { hair: "red" },
+        label: "Ruivo cobre",
+        detail: "Leitura vibrante",
+        setProfile: { hair: "copper" },
+        to: "power_pick"
+      },
+      {
+        label: "Loiro claro",
+        detail: "Leitura solar",
+        setProfile: { hair: "blonde" },
         to: "power_pick"
       }
     ]

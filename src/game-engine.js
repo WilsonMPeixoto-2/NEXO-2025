@@ -6,6 +6,7 @@ import {
   INITIAL_BATTERY
 } from "./game-data.js";
 import { getProfileAvatar, getScenePortrait } from "./portrait-system.js";
+import { RunnerMiniGame } from "./runner-minigame.js";
 
 function hasReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -26,15 +27,6 @@ const BACKDROP_IMAGES = {
 const ARCADE_MODE_KEY = "nexo2050_arcade_mode";
 const MAX_HISTORY = 80;
 
-let runnerMiniGameModulePromise = null;
-
-async function loadRunnerMiniGame() {
-  if (!runnerMiniGameModulePromise) {
-    runnerMiniGameModulePromise = import("./runner-minigame.js");
-  }
-  return runnerMiniGameModulePromise;
-}
-
 class AdaptiveAudioDirector {
   constructor() {
     this.ctx = null;
@@ -42,6 +34,8 @@ class AdaptiveAudioDirector {
     this.ambient = null;
     this.theme = "clean";
     this.fxTimer = null;
+    this.pulseTimer = null;
+    this.musicTimer = null;
   }
 
   async toggle() {
@@ -57,17 +51,30 @@ class AdaptiveAudioDirector {
 
     if (this.enabled) {
       this.ensureAmbient();
-      this.ambient.master.gain.setTargetAtTime(0.06, this.ctx.currentTime, 0.2);
+      this.ambient.master.gain.setTargetAtTime(0.16, this.ctx.currentTime, 0.18);
       this.setTheme(this.theme);
+      this.playSceneCue("boot");
     } else if (this.ambient) {
       this.ambient.master.gain.setTargetAtTime(0.0001, this.ctx.currentTime, 0.2);
-      if (this.fxTimer) {
-        clearInterval(this.fxTimer);
-        this.fxTimer = null;
-      }
+      this.clearLoopTimers();
     }
 
     return this.enabled;
+  }
+
+  clearLoopTimers() {
+    if (this.fxTimer) {
+      clearInterval(this.fxTimer);
+      this.fxTimer = null;
+    }
+    if (this.pulseTimer) {
+      clearInterval(this.pulseTimer);
+      this.pulseTimer = null;
+    }
+    if (this.musicTimer) {
+      clearInterval(this.musicTimer);
+      this.musicTimer = null;
+    }
   }
 
   ensureAmbient() {
@@ -138,6 +145,7 @@ class AdaptiveAudioDirector {
     this.ambient.gainB.gain.setTargetAtTime(config.gB, now, 0.3);
     this.ambient.noiseGain.gain.setTargetAtTime(config.noise, now, 0.3);
     this.configureAtmosFx();
+    this.configureMusic();
   }
 
   createNoiseBuffer(seconds = 2) {
@@ -158,6 +166,10 @@ class AdaptiveAudioDirector {
       clearInterval(this.fxTimer);
       this.fxTimer = null;
     }
+    if (this.pulseTimer) {
+      clearInterval(this.pulseTimer);
+      this.pulseTimer = null;
+    }
     if (!this.enabled) {
       return;
     }
@@ -171,10 +183,168 @@ class AdaptiveAudioDirector {
 
     const delay = intervalMap[this.theme] ?? 0;
     if (!delay) {
+      this.configurePulse();
       return;
     }
 
     this.fxTimer = setInterval(() => this.playAtmosFx(), delay);
+    this.configurePulse();
+  }
+
+  configureMusic() {
+    if (this.musicTimer) {
+      clearInterval(this.musicTimer);
+      this.musicTimer = null;
+    }
+    if (!this.enabled) {
+      return;
+    }
+
+    const intervalMap = {
+      clean: 6200,
+      cyber: 4300,
+      distopic: 5200,
+      glitch: 3900
+    };
+
+    this.playMusicPhrase(true);
+    this.musicTimer = setInterval(() => this.playMusicPhrase(false), intervalMap[this.theme] ?? 4800);
+  }
+
+  playTone({
+    frequency = 330,
+    start = 0,
+    duration = 0.22,
+    gain = 0.05,
+    type = "triangle",
+    glideTo = null,
+    attack = 0.02,
+    release = 0.18,
+    destination = null
+  } = {}) {
+    if (!this.enabled || !this.ctx) {
+      return;
+    }
+
+    const when = this.ctx.currentTime + start;
+    const osc = this.ctx.createOscillator();
+    const amp = this.ctx.createGain();
+    const target = destination || this.ctx.destination;
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(Math.max(40, frequency), when);
+    if (glideTo) {
+      osc.frequency.exponentialRampToValueAtTime(Math.max(40, glideTo), when + duration);
+    }
+
+    amp.gain.setValueAtTime(0.0001, when);
+    amp.gain.exponentialRampToValueAtTime(Math.max(gain, 0.0002), when + attack);
+    amp.gain.exponentialRampToValueAtTime(0.0001, when + Math.max(duration, attack + 0.03) + release);
+
+    osc.connect(amp).connect(target);
+    osc.start(when);
+    osc.stop(when + duration + release + 0.04);
+  }
+
+  playMusicPhrase(isIntro = false) {
+    if (!this.enabled || !this.ctx) {
+      return;
+    }
+
+    const phrases = {
+      clean: {
+        lead: [262, 330, 392, 523],
+        bass: [131, 147],
+        type: "triangle",
+        gain: isIntro ? 0.042 : 0.032,
+        step: 0.26
+      },
+      cyber: {
+        lead: [294, 392, 440, 587],
+        bass: [147, 196],
+        type: "sawtooth",
+        gain: isIntro ? 0.05 : 0.038,
+        step: 0.22
+      },
+      distopic: {
+        lead: [196, 247, 220, 196],
+        bass: [98, 110],
+        type: "triangle",
+        gain: isIntro ? 0.048 : 0.034,
+        step: 0.3
+      },
+      glitch: {
+        lead: [220, 330, 277, 370],
+        bass: [110, 139],
+        type: "square",
+        gain: isIntro ? 0.045 : 0.032,
+        step: 0.18
+      }
+    };
+
+    const phrase = phrases[this.theme] || phrases.clean;
+    phrase.lead.forEach((freq, index) => {
+      this.playTone({
+        frequency: freq,
+        glideTo: freq * (index % 2 === 0 ? 1.03 : 0.98),
+        start: index * phrase.step,
+        duration: 0.18,
+        gain: phrase.gain,
+        type: phrase.type
+      });
+    });
+
+    phrase.bass.forEach((freq, index) => {
+      this.playTone({
+        frequency: freq,
+        start: index * phrase.step * 2,
+        duration: 0.52,
+        gain: isIntro ? 0.028 : 0.022,
+        type: "sine",
+        glideTo: freq * 0.94
+      });
+    });
+  }
+
+  configurePulse() {
+    if (!this.enabled) {
+      return;
+    }
+
+    const pulseMap = {
+      clean: 3400,
+      cyber: 2200,
+      distopic: 2500,
+      glitch: 2000
+    };
+
+    const pulseDelay = pulseMap[this.theme] ?? 2600;
+    this.pulseTimer = setInterval(() => this.playPulse(), pulseDelay);
+  }
+
+  playPulse() {
+    if (!this.enabled || !this.ctx) {
+      return;
+    }
+
+    const tones = {
+      clean: [262, 392],
+      cyber: [294, 440],
+      distopic: [196, 247],
+      glitch: [220, 330]
+    };
+
+    const [a, b] = tones[this.theme] || tones.clean;
+    [a, b].forEach((freq, index) => {
+      this.playTone({
+        frequency: freq,
+        start: index * 0.12,
+        duration: 0.16,
+        gain: 0.03,
+        type: index === 0 ? "sine" : "triangle",
+        glideTo: freq * 0.96
+      });
+    });
   }
 
   playAtmosFx() {
@@ -192,7 +362,7 @@ class AdaptiveAudioDirector {
     rumbleFilter.type = "lowpass";
     rumbleFilter.frequency.value = 480;
     rumbleGain.gain.setValueAtTime(0.0001, now);
-    rumbleGain.gain.exponentialRampToValueAtTime(0.04, now + 0.03);
+    rumbleGain.gain.exponentialRampToValueAtTime(0.06, now + 0.03);
     rumbleGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
     rumble.connect(rumbleFilter).connect(rumbleGain).connect(this.ctx.destination);
     rumble.start(now);
@@ -204,7 +374,7 @@ class AdaptiveAudioDirector {
       crack.type = "square";
       crack.frequency.setValueAtTime(880 + Math.random() * 240, now + 0.12);
       crackGain.gain.setValueAtTime(0.0001, now + 0.12);
-      crackGain.gain.exponentialRampToValueAtTime(0.02, now + 0.13);
+      crackGain.gain.exponentialRampToValueAtTime(0.03, now + 0.13);
       crackGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
       crack.connect(crackGain).connect(this.ctx.destination);
       crack.start(now + 0.12);
@@ -212,42 +382,63 @@ class AdaptiveAudioDirector {
     }
   }
 
-  beep(kind = "confirm") {
+  playSceneCue(kind = "scene") {
     if (!this.enabled || !this.ctx) {
       return;
     }
 
-    const now = this.ctx.currentTime;
-    const gain = this.ctx.createGain();
-    gain.connect(this.ctx.destination);
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.05, now + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+    const cueMap = {
+      boot: [262, 392, 523],
+      scene: [220, 294],
+      runner: [330, 392, 494, 659]
+    };
 
-    const osc = this.ctx.createOscillator();
-    osc.connect(gain);
+    const notes = cueMap[kind] || cueMap.scene;
+    notes.forEach((frequency, index) => {
+      this.playTone({
+        frequency,
+        start: index * 0.08,
+        duration: 0.12,
+        gain: kind === "runner" ? 0.05 : 0.038,
+        type: kind === "runner" ? "square" : "triangle",
+        glideTo: frequency * 1.02
+      });
+    });
+  }
 
-    if (kind === "alert") {
-      osc.type = "square";
-      osc.frequency.setValueAtTime(170, now);
-      osc.frequency.linearRampToValueAtTime(120, now + 0.09);
-    } else if (kind === "warning") {
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(300, now);
-      osc.frequency.linearRampToValueAtTime(370, now + 0.1);
-    } else if (kind === "success") {
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(330, now);
-      osc.frequency.setValueAtTime(440, now + 0.05);
-      osc.frequency.setValueAtTime(520, now + 0.1);
-    } else {
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(360, now);
-      osc.frequency.linearRampToValueAtTime(430, now + 0.08);
+  playEffect(kind = "confirm") {
+    if (!this.enabled || !this.ctx) {
+      return;
     }
 
-    osc.start(now);
-    osc.stop(now + 0.15);
+    const effects = {
+      confirm: [
+        { frequency: 360, duration: 0.09, gain: 0.08, type: "triangle", glideTo: 430 },
+        { frequency: 430, start: 0.06, duration: 0.08, gain: 0.052, type: "sine" }
+      ],
+      warning: [
+        { frequency: 290, duration: 0.08, gain: 0.082, type: "triangle", glideTo: 360 },
+        { frequency: 360, start: 0.08, duration: 0.08, gain: 0.048, type: "triangle", glideTo: 420 }
+      ],
+      alert: [{ frequency: 172, duration: 0.14, gain: 0.088, type: "square", glideTo: 122 }],
+      success: [
+        { frequency: 330, duration: 0.08, gain: 0.074, type: "sine" },
+        { frequency: 440, start: 0.07, duration: 0.08, gain: 0.065, type: "sine" },
+        { frequency: 554, start: 0.14, duration: 0.1, gain: 0.06, type: "triangle" }
+      ],
+      jump: [{ frequency: 290, duration: 0.08, gain: 0.072, type: "triangle", glideTo: 460 }],
+      collect: [
+        { frequency: 520, duration: 0.07, gain: 0.07, type: "sine" },
+        { frequency: 784, start: 0.06, duration: 0.08, gain: 0.055, type: "sine" }
+      ],
+      hit: [{ frequency: 180, duration: 0.16, gain: 0.095, type: "square", glideTo: 92 }]
+    };
+
+    (effects[kind] || effects.confirm).forEach((tone) => this.playTone(tone));
+  }
+
+  beep(kind = "confirm") {
+    this.playEffect(kind);
   }
 }
 
@@ -643,6 +834,10 @@ export class GameEngine {
       this.syncAudioButton(enabled);
       const scene = this.getScene(this.state.sceneId);
       this.audio.setTheme(scene.theme || "clean");
+      if (enabled) {
+        this.audio.playSceneCue(scene.mode === "runner" ? "runner" : "scene");
+        this.audio.beep("confirm");
+      }
     } catch {
       this.audioPrimed = false;
     }
@@ -869,6 +1064,8 @@ export class GameEngine {
     const tokens = [];
     if (p.gender) tokens.push(PROFILE_LABELS.gender[p.gender]);
     if (p.age) tokens.push(PROFILE_LABELS.age[p.age]);
+    if (p.skinTone) tokens.push(PROFILE_LABELS.skinTone[p.skinTone]);
+    if (p.hairLength) tokens.push(PROFILE_LABELS.hairLength[p.hairLength]);
     if (p.hair) tokens.push(PROFILE_LABELS.hair[p.hair]);
     if (p.profession) tokens.push(PROFILE_LABELS.profession[p.profession]);
     return tokens.join(" | ");
@@ -1082,6 +1279,9 @@ export class GameEngine {
     this.scrollToElement(this.elements.sceneCard);
 
     this.audio.setTheme(scene.theme || "clean");
+    if (this.audio.enabled) {
+      this.audio.playSceneCue(scene.mode === "runner" ? "runner" : "scene");
+    }
     const finalText = this.withDynamicValues(scene.text || "...");
     this.voice.speak(scene.speaker || "Sistema", finalText);
 
@@ -1168,23 +1368,20 @@ export class GameEngine {
     this.scrollToElement(this.elements.runnerShell, "center");
 
     const cfg = scene.runner || {};
+    const runnerSceneId = this.state.sceneId;
     this.elements.runnerTitle.textContent = cfg.title || "Operacao de Corrida";
     this.elements.runnerHint.textContent = cfg.hint || "Setas para mover, espaco para salto";
 
     const hair = this.state.profile.hair;
-    const avatarHue = hair === "yellow" ? 46 : hair === "red" ? 2 : 205;
+    const hueMap = {
+      blonde: 46,
+      copper: 14,
+      brown: 26,
+      black: 205
+    };
+    const avatarHue = hueMap[hair] ?? 205;
 
-    let RunnerMiniGame;
-    try {
-      ({ RunnerMiniGame } = await loadRunnerMiniGame());
-    } catch (error) {
-      console.error("Falha ao carregar runner:", error);
-      this.elements.runnerCanvas.innerHTML = '<div class="runner-loading">Falha ao abrir a corrida.</div>';
-      this.handleRunnerFinish(scene, { score: 0, energy: 0, hits: 3, batteryDelta: -15 });
-      return;
-    }
-
-    if (this.state.sceneId !== "run_arcade") {
+    if (this.state.sceneId !== runnerSceneId) {
       return;
     }
 
@@ -1198,7 +1395,13 @@ export class GameEngine {
       touchJump: this.elements.touchJump,
       durationSec: cfg.durationSec ?? 24,
       avatarHue,
+      avatarProfile: { ...this.state.profile },
       theme: scene.theme,
+      onEvent: (eventName) => {
+        if (eventName === "jump") this.audio.playEffect("jump");
+        if (eventName === "collect") this.audio.playEffect("collect");
+        if (eventName === "hit") this.audio.playEffect("hit");
+      },
       onFinish: (result) => this.handleRunnerFinish(scene, result)
     });
 
@@ -1212,6 +1415,7 @@ export class GameEngine {
       return;
     }
 
+    this.audio.playSceneCue("runner");
     const timeoutMs = ((cfg.durationSec ?? 24) + 8) * 1000;
     this.runnerWatchdog = setTimeout(() => {
       if (!this.activeRunner) {
@@ -1349,6 +1553,7 @@ export class GameEngine {
       }
 
       button.addEventListener("click", () => {
+        void this.primeAudioExperience();
         if (this.state.isTyping) {
           this.finishTyping(() => this.renderChoices());
           return;

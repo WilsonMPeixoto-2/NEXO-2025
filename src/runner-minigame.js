@@ -1,10 +1,8 @@
-import Phaser from "phaser";
-
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
-function hueToColor(hue, saturation = 82, lightness = 58) {
+function hueToRgb(hue, saturation = 82, lightness = 58) {
   const s = saturation / 100;
   const l = lightness / 100;
   const c = (1 - Math.abs(2 * l - 1)) * s;
@@ -36,47 +34,133 @@ function hueToColor(hue, saturation = 82, lightness = 58) {
   }
 
   const toByte = (v) => Math.round((v + m) * 255);
-  return (toByte(r) << 16) | (toByte(g) << 8) | toByte(b);
+  return [toByte(r), toByte(g), toByte(b)];
+}
+
+function rgba(rgb, alpha = 1) {
+  return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
 }
 
 const THEME_PALETTES = {
   clean: {
-    bgTop: 0x173552,
-    bgBottom: 0x08131e,
-    neon: 0x8cf2e0,
-    neonSoft: 0x9fddff,
-    tower: 0x294861,
-    road: 0x0d1828,
-    obstacle: 0xffad6f
+    skyTop: "#1f4f5a",
+    skyBottom: "#07131a",
+    road: "#0d1720",
+    lane: "#8ef0df",
+    laneSoft: "#c1fbf1",
+    obstacle: "#ffbb73",
+    drone: "#ffe28b",
+    building: "#2f5a65",
+    accent: "#78f2e0"
   },
   cyber: {
-    bgTop: 0x1a2446,
-    bgBottom: 0x060a18,
-    neon: 0x68f0ff,
-    neonSoft: 0x8d9fff,
-    tower: 0x283158,
-    road: 0x091226,
-    obstacle: 0xf56e8b
+    skyTop: "#23295a",
+    skyBottom: "#080d18",
+    road: "#0a1221",
+    lane: "#73dfff",
+    laneSoft: "#adc4ff",
+    obstacle: "#ff759a",
+    drone: "#ffcc7d",
+    building: "#313a6f",
+    accent: "#8fdfff"
   },
   distopic: {
-    bgTop: 0x302032,
-    bgBottom: 0x120d18,
-    neon: 0xff997a,
-    neonSoft: 0xffb2ce,
-    tower: 0x423049,
-    road: 0x17121e,
-    obstacle: 0xff6868
+    skyTop: "#442834",
+    skyBottom: "#120c15",
+    road: "#170f17",
+    lane: "#ffb18a",
+    laneSoft: "#ffd0bd",
+    obstacle: "#ff7d7d",
+    drone: "#ffd38a",
+    building: "#523946",
+    accent: "#ffb690"
   },
   glitch: {
-    bgTop: 0x27203d,
-    bgBottom: 0x090514,
-    neon: 0x9dff66,
-    neonSoft: 0x8df2ff,
-    tower: 0x3f3565,
-    road: 0x0c1023,
-    obstacle: 0xff5ec7
+    skyTop: "#19263d",
+    skyBottom: "#070912",
+    road: "#0c1020",
+    lane: "#95ff73",
+    laneSoft: "#8ee8ff",
+    obstacle: "#ff69c2",
+    drone: "#ffe07f",
+    building: "#334163",
+    accent: "#8ff7ff"
   }
 };
+
+const RUNNER_SKIN = {
+  light: "#f0d2bf",
+  tan: "#d9ab87",
+  brown: "#9c6d4f",
+  deep: "#6d4736"
+};
+
+const RUNNER_HAIR = {
+  black: "#20242b",
+  brown: "#51372f",
+  copper: "#985639",
+  blonde: "#c1a16a"
+};
+
+function rgb(rgb) {
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+
+function buildAvatarStyle(profile = {}, hue = 205) {
+  const accentRgb = hueToRgb(hue, 84, 62);
+  const suitRgb = hueToRgb(hue, 62, 38);
+  const suitDeepRgb = hueToRgb(hue, 54, 23);
+
+  return {
+    skin: RUNNER_SKIN[profile.skinTone] || RUNNER_SKIN.tan,
+    hair: RUNNER_HAIR[profile.hair] || RUNNER_HAIR.black,
+    hairLength: profile.hairLength || "medium",
+    accent: rgb(accentRgb),
+    accentSoft: rgba(accentRgb, 0.24),
+    suit: rgb(suitRgb),
+    suitDeep: rgb(suitDeepRgb),
+    visor: false
+  };
+}
+
+function roundedRectPath(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + width, y, x + width, y + height, r);
+  ctx.arcTo(x + width, y + height, x, y + height, r);
+  ctx.arcTo(x, y + height, x, y, r);
+  ctx.arcTo(x, y, x + width, y, r);
+  ctx.closePath();
+}
+
+function drawHair(ctx, style, x, y, radius) {
+  ctx.fillStyle = style.hair;
+  ctx.beginPath();
+
+  if (style.hairLength === "long") {
+    ctx.moveTo(x - radius - 5, y + 5);
+    ctx.quadraticCurveTo(x, y - radius - 10, x + radius + 5, y + 5);
+    ctx.quadraticCurveTo(x + radius + 12, y + radius + 16, x + 10, y + radius + 28);
+    ctx.lineTo(x - 10, y + radius + 28);
+    ctx.quadraticCurveTo(x - radius - 12, y + radius + 14, x - radius - 5, y + 5);
+  } else if (style.hairLength === "short") {
+    ctx.moveTo(x - radius - 2, y + 2);
+    ctx.quadraticCurveTo(x - 6, y - radius - 10, x + radius - 2, y);
+    ctx.quadraticCurveTo(x + radius + 5, y + 4, x + radius - 4, y + 14);
+    ctx.lineTo(x - radius + 4, y + 14);
+    ctx.quadraticCurveTo(x - radius - 4, y + 9, x - radius - 2, y + 2);
+  } else {
+    ctx.moveTo(x - radius - 4, y + 4);
+    ctx.quadraticCurveTo(x, y - radius - 11, x + radius + 4, y + 4);
+    ctx.quadraticCurveTo(x + radius + 9, y + radius + 10, x + 8, y + radius + 18);
+    ctx.lineTo(x - 8, y + radius + 18);
+    ctx.quadraticCurveTo(x - radius - 9, y + radius + 10, x - radius - 4, y + 4);
+  }
+
+  ctx.closePath();
+  ctx.fill();
+}
 
 export class RunnerMiniGame {
   constructor(options) {
@@ -89,11 +173,21 @@ export class RunnerMiniGame {
     };
 
     this.palette = THEME_PALETTES[this.options.theme] || THEME_PALETTES.cyber;
-
-    this.game = null;
-    this.scene = null;
+    this.avatarStyle = buildAvatarStyle(this.options.avatarProfile, this.options.avatarHue);
+    this.canvas = null;
+    this.ctx = null;
+    this.host = null;
     this.running = false;
     this.completed = false;
+    this.frameId = null;
+    this.lastFrame = 0;
+    this.cleanupFns = [];
+
+    this.world = {
+      width: 1000,
+      height: 450,
+      groundY: 350
+    };
 
     this.state = {
       score: 0,
@@ -101,17 +195,33 @@ export class RunnerMiniGame {
       hits: 0,
       remainingSec: this.options.durationSec,
       startedAt: 0,
-      lastSecond: null,
-      invulnUntil: 0
+      invulnUntil: 0,
+      flash: 0
     };
 
-    this.touch = {
+    this.control = {
       left: false,
       right: false,
       jumpQueued: false
     };
 
-    this.cleanupFns = [];
+    this.player = {
+      x: 170,
+      y: 0,
+      width: 60,
+      height: 96,
+      vy: 0,
+      angle: 0
+    };
+
+    this.obstacles = [];
+    this.collectibles = [];
+    this.skyline = [];
+    this.bands = [];
+    this.lanes = [];
+    this.particles = [];
+    this.spawnObstacleAt = 0;
+    this.spawnCollectibleAt = 0;
   }
 
   start() {
@@ -119,84 +229,40 @@ export class RunnerMiniGame {
       return;
     }
 
-    const host = this.options.canvas;
-    if (!host) {
-      this.complete({
-        score: 0,
-        energy: 0,
-        hits: 0,
-        batteryDelta: -8
-      });
+    this.host = this.options.canvas;
+    if (!this.host) {
+      this.complete({ score: 0, energy: 0, hits: 0, batteryDelta: -8 });
       return;
     }
 
-    host.innerHTML = "";
-    this.setupTouchControls();
+    this.host.innerHTML = "";
+    this.canvas = document.createElement("canvas");
+    this.canvas.width = this.world.width;
+    this.canvas.height = this.world.height;
+    this.canvas.setAttribute("aria-hidden", "true");
+    this.host.append(this.canvas);
+    this.ctx = this.canvas.getContext("2d");
+
+    if (!this.ctx) {
+      this.startFallback();
+      return;
+    }
+
+    this.setupScene();
+    this.setupControls();
+
     this.running = true;
-    const runner = this;
-    const sceneConfig = {
-      key: "runnerScene",
-      preload() {
-        try {
-          runner.preloadScene(this);
-        } catch (error) {
-          runner.failSafe(error);
-        }
-      },
-      create() {
-        try {
-          runner.createScene(this);
-        } catch (error) {
-          runner.failSafe(error);
-        }
-      },
-      update(time, delta) {
-        try {
-          runner.updateScene(this, time, delta);
-        } catch (error) {
-          runner.failSafe(error);
-        }
-      }
-    };
-
-    const rendererType = Phaser.Device.Features.webGL ? Phaser.WEBGL : Phaser.CANVAS;
-    const renderResolution = Math.min(window.devicePixelRatio || 1, 2);
-
-    try {
-      this.game = new Phaser.Game({
-        type: rendererType,
-        parent: host,
-        width: 1000,
-        height: 450,
-        backgroundColor: "#081523",
-        resolution: renderResolution,
-        fps: { target: 60, forceSetTimeOut: false },
-        render: {
-          antialias: true,
-          antialiasGL: true,
-          clearBeforeRender: true,
-          powerPreference: "high-performance"
-        },
-        scale: {
-          mode: Phaser.Scale.FIT,
-          autoCenter: Phaser.Scale.CENTER_BOTH
-        },
-        physics: {
-          default: "arcade",
-          arcade: {
-            gravity: { y: 1600 },
-            fps: 144,
-            debug: false
-          }
-        },
-        scene: sceneConfig
-      });
-    } catch (error) {
-      this.failSafe(error);
-      return;
-    }
-
+    this.lastFrame = performance.now();
+    this.state.startedAt = this.lastFrame;
+    this.state.remainingSec = this.options.durationSec;
     this.updateHud();
+    this.frameId = window.requestAnimationFrame((ts) => this.loop(ts));
+  }
+
+  emitEvent(name, payload) {
+    if (typeof this.options.onEvent === "function") {
+      this.options.onEvent(name, payload);
+    }
   }
 
   stop() {
@@ -215,20 +281,16 @@ export class RunnerMiniGame {
     fallback.style.fontFamily = "Share Tech Mono, monospace";
     fallback.style.fontSize = "0.92rem";
     fallback.style.color = "#d7f4ff";
-    fallback.textContent = "Modo de contingencia ativo: Phaser indisponivel.";
+    fallback.textContent = "Mini game em modo simples.";
     host.append(fallback);
 
     this.running = true;
-    this.setupTouchControls();
-
+    this.setupControls();
     const started = Date.now();
-    this.state.remainingSec = this.options.durationSec;
-    this.updateHud();
-
     const timer = window.setInterval(() => {
       const elapsed = Math.floor((Date.now() - started) / 1000);
       this.state.remainingSec = Math.max(this.options.durationSec - elapsed, 0);
-      this.state.score += 28;
+      this.state.score += 35;
       this.updateHud();
       if (this.state.remainingSec <= 0) {
         window.clearInterval(timer);
@@ -239,397 +301,499 @@ export class RunnerMiniGame {
     this.cleanupFns.push(() => window.clearInterval(timer));
   }
 
-  preloadScene(scene) {
-    this.scene = scene;
-    const gfx = scene.make.graphics({ x: 0, y: 0, add: false });
-    const p = this.palette;
-    const heroColor = hueToColor(this.options.avatarHue || 205);
-
-    gfx.fillStyle(heroColor, 1);
-    gfx.fillRoundedRect(0, 0, 56, 74, 14);
-    gfx.fillStyle(0xffffff, 0.2);
-    gfx.fillRoundedRect(6, 6, 44, 15, 6);
-    gfx.fillStyle(0xffffff, 0.5);
-    gfx.fillRoundedRect(20, 22, 16, 16, 4);
-    gfx.generateTexture("runner_hero", 56, 74);
-    gfx.clear();
-
-    gfx.fillStyle(p.obstacle, 1);
-    gfx.fillRoundedRect(0, 0, 62, 44, 8);
-    gfx.fillStyle(0x2a1a2d, 0.45);
-    gfx.fillRoundedRect(7, 7, 48, 30, 5);
-    gfx.generateTexture("runner_block", 62, 44);
-    gfx.clear();
-
-    gfx.fillStyle(0xf5e57d, 1);
-    gfx.fillRoundedRect(0, 0, 52, 20, 8);
-    gfx.fillStyle(0xffffff, 0.35);
-    gfx.fillRoundedRect(8, 4, 36, 8, 4);
-    gfx.generateTexture("runner_drone", 52, 20);
-    gfx.clear();
-
-    gfx.fillStyle(0x79ffc8, 1);
-    gfx.fillCircle(20, 20, 20);
-    gfx.fillStyle(0xffffff, 0.55);
-    gfx.fillCircle(14, 14, 7);
-    gfx.generateTexture("runner_energy", 40, 40);
-    gfx.clear();
-
-    gfx.fillStyle(p.neon, 1);
-    gfx.fillRect(0, 0, 22, 8);
-    gfx.generateTexture("runner_line", 22, 8);
-    gfx.clear();
-
-    gfx.fillStyle(p.tower, 1);
-    gfx.fillRoundedRect(0, 0, 130, 80, 10);
-    gfx.fillStyle(p.neonSoft, 0.14);
-    gfx.fillRect(8, 10, 116, 8);
-    gfx.fillRect(8, 26, 116, 5);
-    gfx.fillRect(8, 38, 116, 5);
-    gfx.generateTexture("runner_building", 130, 80);
-    gfx.clear();
-
-    gfx.fillGradientStyle(p.bgTop, p.bgTop, p.bgBottom, p.bgBottom, 1);
-    gfx.fillRect(0, 0, 1000, 450);
-    gfx.generateTexture("runner_bg", 1000, 450);
-    gfx.clear();
-
-    gfx.fillStyle(p.neon, 1);
-    gfx.fillCircle(6, 6, 6);
-    gfx.generateTexture("runner_dot", 12, 12);
-
-    gfx.destroy();
+  setupScene() {
+    this.player.y = this.world.groundY - this.player.height;
+    this.obstacles = [];
+    this.collectibles = [];
+    this.skyline = Array.from({ length: 18 }, (_, index) => ({
+      x: index * 64,
+      width: 44 + Math.random() * 48,
+      height: 90 + Math.random() * 120,
+      y: 195 + Math.random() * 55,
+      alpha: 0.22 + Math.random() * 0.24
+    }));
+    this.bands = Array.from({ length: 5 }, (_, index) => ({
+      y: 62 + index * 34,
+      alpha: 0.04 + index * 0.028
+    }));
+    this.lanes = Array.from({ length: 18 }, (_, index) => ({
+      x: index * 72,
+      width: 30
+    }));
+    this.particles = Array.from({ length: 44 }, () => ({
+      x: Math.random() * this.world.width,
+      y: Math.random() * this.world.height,
+      vy: 160 + Math.random() * 220,
+      vx: -50 - Math.random() * 70,
+      size: 1 + Math.random() * 2,
+      alpha: 0.18 + Math.random() * 0.18
+    }));
+    this.spawnObstacleAt = 0.8;
+    this.spawnCollectibleAt = 0.6;
   }
 
-  createScene(scene) {
-    const { width, height } = scene.scale;
-    scene.add.image(width * 0.5, height * 0.5, "runner_bg");
-
-    this.decorateCity(scene, width, height);
-    this.decorateRoad(scene, width, height);
-    this.decorateWeather(scene, width, height);
-
-    this.groundY = Math.round(height * 0.78);
-    this.ground = scene.add.rectangle(width * 0.5, this.groundY + 30, width + 90, 110, this.palette.road);
-    scene.physics.add.existing(this.ground, true);
-
-    this.player = scene.physics.add.sprite(170, this.groundY - 10, "runner_hero");
-    this.player.setCollideWorldBounds(true);
-    this.player.setBounce(0.02);
-    this.player.setDamping(true);
-    this.player.setDragX(0.0007);
-    this.player.body.setSize(44, 70).setOffset(6, 2);
-    scene.physics.add.collider(this.player, this.ground);
-
-    this.obstacles = scene.physics.add.group({ allowGravity: false, immovable: true });
-    this.collectibles = scene.physics.add.group({ allowGravity: false, immovable: true });
-
-    scene.physics.add.overlap(this.player, this.obstacles, (_, obstacle) => {
-      this.onHitObstacle(scene, obstacle);
-    });
-    scene.physics.add.overlap(this.player, this.collectibles, (_, item) => {
-      this.onCollect(scene, item);
-    });
-
-    this.cursors = scene.input.keyboard.createCursorKeys();
-    this.keys = scene.input.keyboard.addKeys("A,D,W,SPACE");
-
-    this.obstacleEvent = scene.time.addEvent({
-      delay: 840,
-      loop: true,
-      callback: () => this.spawnObstacle(scene)
-    });
-
-    this.collectEvent = scene.time.addEvent({
-      delay: 520,
-      loop: true,
-      callback: () => {
-        if (Math.random() < 0.5) {
-          this.spawnCollectible(scene);
-        }
+  setupControls() {
+    const onKeyDown = (event) => {
+      if (event.key === "ArrowLeft" || event.key === "a" || event.key === "A") {
+        this.control.left = true;
       }
-    });
-
-    this.state.startedAt = scene.time.now;
-    this.state.lastSecond = this.options.durationSec;
-    this.state.remainingSec = this.options.durationSec;
-    this.updateHud();
-  }
-
-  decorateCity(scene, width, height) {
-    this.bgBuildings = [];
-    const count = 16;
-    for (let i = 0; i < count; i += 1) {
-      const x = (i / count) * width;
-      const y = height * 0.5 + Math.random() * 36;
-      const tower = scene.add.image(x, y, "runner_building").setOrigin(0.2, 1);
-      tower.setAlpha(0.26 + Math.random() * 0.24);
-      tower.setScale(0.75 + Math.random() * 0.86, 0.82 + Math.random() * 1.08);
-      this.bgBuildings.push(tower);
-    }
-
-    this.bgBands = [];
-    for (let i = 0; i < 5; i += 1) {
-      const band = scene.add.rectangle(
-        width * 0.5,
-        height * (0.16 + i * 0.09),
-        width + 60,
-        3,
-        this.palette.neon,
-        0.05 + i * 0.025
-      );
-      this.bgBands.push(band);
-    }
-  }
-
-  decorateRoad(scene, width, height) {
-    this.roadLines = [];
-    const y = height * 0.82;
-    for (let i = 0; i < 24; i += 1) {
-      const x = (i / 24) * (width + 40);
-      const line = scene.add.image(x, y, "runner_line").setOrigin(0, 0.5);
-      line.setTint(this.palette.neon);
-      line.setAlpha(0.64);
-      this.roadLines.push(line);
-    }
-
-    this.roadGlow = scene.add.rectangle(width * 0.5, y + 12, width + 100, 10, this.palette.neonSoft, 0.2);
-  }
-
-  decorateWeather(scene, width, height) {
-    const density = window.devicePixelRatio && window.devicePixelRatio >= 1.5 ? 3 : 2;
-    const config = {
-      x: { min: 0, max: width },
-      y: { min: -8, max: -2 },
-      speedY: { min: 220, max: 480 },
-      speedX: { min: -120, max: -40 },
-      scale: { start: 0.7, end: 0 },
-      lifespan: { min: 720, max: 1200 },
-      frequency: 20,
-      quantity: density,
-      alpha: { start: 0.25, end: 0 },
-      blendMode: "ADD"
+      if (event.key === "ArrowRight" || event.key === "d" || event.key === "D") {
+        this.control.right = true;
+      }
+      if (
+        event.key === "ArrowUp" ||
+        event.key === "w" ||
+        event.key === "W" ||
+        event.key === " " ||
+        event.key === "Spacebar"
+      ) {
+        this.control.jumpQueued = true;
+      }
     };
 
-    try {
-      const particles = scene.add.particles("runner_dot");
-      if (particles && typeof particles.createEmitter === "function") {
-        this.weatherEmitter = particles.createEmitter(config);
-        return;
+    const onKeyUp = (event) => {
+      if (event.key === "ArrowLeft" || event.key === "a" || event.key === "A") {
+        this.control.left = false;
       }
-    } catch {
-      // Ignore and try modern API below.
-    }
+      if (event.key === "ArrowRight" || event.key === "d" || event.key === "D") {
+        this.control.right = false;
+      }
+    };
 
-    // Phaser >= 3.60 can return an emitter directly.
-    this.weatherEmitter = scene.add.particles(0, 0, "runner_dot", config);
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    this.cleanupFns.push(() => window.removeEventListener("keydown", onKeyDown));
+    this.cleanupFns.push(() => window.removeEventListener("keyup", onKeyUp));
+
+    this.bindHold(this.options.touchLeft, "left");
+    this.bindHold(this.options.touchRight, "right");
+
+    if (this.options.touchJump) {
+      const onJump = (event) => {
+        event.preventDefault();
+        this.control.jumpQueued = true;
+      };
+      this.options.touchJump.addEventListener("pointerdown", onJump, { passive: false });
+      this.cleanupFns.push(() => this.options.touchJump.removeEventListener("pointerdown", onJump));
+    }
   }
 
-  spawnObstacle(scene) {
-    if (!scene || !this.running) {
+  bindHold(button, key) {
+    if (!button) {
       return;
     }
 
-    const w = scene.scale.width;
-    const obstacleType = Math.random() < 0.28 ? "drone" : "block";
-    const key = obstacleType === "drone" ? "runner_drone" : "runner_block";
-    const y = obstacleType === "drone" ? this.groundY - (96 + Math.random() * 48) : this.groundY - 24;
+    const onDown = (event) => {
+      event.preventDefault();
+      this.control[key] = true;
+    };
+    const onUp = (event) => {
+      event.preventDefault();
+      this.control[key] = false;
+    };
 
-    const obstacle = this.obstacles.create(w + 90, y, key);
-    const elapsed = (scene.time.now - this.state.startedAt) / 1000;
-    const speed = 340 + elapsed * 8 + Math.random() * 75;
+    button.addEventListener("pointerdown", onDown, { passive: false });
+    button.addEventListener("pointerup", onUp, { passive: false });
+    button.addEventListener("pointercancel", onUp, { passive: false });
+    button.addEventListener("pointerleave", onUp, { passive: false });
 
-    if (obstacleType === "drone") {
-      obstacle.setScale(0.92 + Math.random() * 0.22);
-      obstacle.setTint(0xffce8b);
-      obstacle.body.setSize(48, 16).setOffset(2, 2);
-    } else {
-      const scaleY = Math.random() < 0.4 ? 1.36 : 0.96;
-      obstacle.setScale(1, scaleY);
-      obstacle.body.setSize(52, Math.floor(38 * scaleY)).setOffset(5, Math.floor(4 * scaleY));
-    }
-
-    obstacle.setVelocityX(-speed);
-    obstacle.setImmovable(true);
-  }
-
-  spawnCollectible(scene) {
-    if (!scene || !this.running) {
-      return;
-    }
-
-    const w = scene.scale.width;
-    const h = scene.scale.height;
-    const altitude = this.groundY - (100 + Math.random() * 160);
-    const item = this.collectibles.create(
-      w + 55,
-      clamp(altitude, h * 0.2, this.groundY - 38),
-      "runner_energy"
-    );
-    item.setTint(this.palette.neonSoft);
-    item.setScale(0.88 + Math.random() * 0.25);
-    item.body.setCircle(18, 2, 2);
-    item.setVelocityX(-(290 + Math.random() * 95));
-    scene.tweens.add({
-      targets: item,
-      y: item.y - (6 + Math.random() * 10),
-      duration: 360 + Math.random() * 260,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.easeInOut"
+    this.cleanupFns.push(() => {
+      button.removeEventListener("pointerdown", onDown);
+      button.removeEventListener("pointerup", onUp);
+      button.removeEventListener("pointercancel", onUp);
+      button.removeEventListener("pointerleave", onUp);
     });
   }
 
-  onCollect(scene, item) {
-    if (!item || !this.running) {
+  loop(timestamp) {
+    if (!this.running) {
       return;
     }
 
-    if (this.weatherEmitter) {
-      if (typeof this.weatherEmitter.explode === "function") {
-        this.weatherEmitter.explode(8, item.x, item.y);
-      } else if (typeof this.weatherEmitter.emitParticleAt === "function") {
-        this.weatherEmitter.emitParticleAt(item.x, item.y, 8);
-      }
-    }
-    item.destroy();
-    this.state.energy += 1;
-    this.state.score += 150;
-    scene.cameras.main.flash(50, 80, 250, 190, false);
-    this.updateHud();
+    const dt = clamp((timestamp - this.lastFrame) / 1000, 0.001, 0.032);
+    this.lastFrame = timestamp;
+
+    this.update(dt, timestamp);
+    this.draw(timestamp);
+    this.frameId = window.requestAnimationFrame((ts) => this.loop(ts));
   }
 
-  onHitObstacle(scene, obstacle) {
-    if (!this.running || !scene) {
-      return;
-    }
-
-    const now = scene.time.now;
-    if (now < this.state.invulnUntil) {
-      return;
-    }
-
-    this.state.invulnUntil = now + 850;
-    this.state.hits += 1;
-    this.state.score = Math.max(0, this.state.score - 180);
-    this.player.setVelocityY(-350);
-    this.player.setTint(0xffa7a7);
-    scene.time.delayedCall(170, () => {
-      if (this.player) {
-        this.player.clearTint();
-      }
-    });
-
-    if (obstacle) {
-      obstacle.destroy();
-    }
-    scene.cameras.main.shake(120, 0.004);
+  update(dt, timestamp) {
+    const elapsed = (timestamp - this.state.startedAt) / 1000;
+    this.state.remainingSec = Math.max(0, Math.ceil(this.options.durationSec - elapsed));
+    this.state.flash = Math.max(0, this.state.flash - dt * 2.6);
     this.updateHud();
-  }
 
-  updateScene(scene, time, delta) {
-    if (!this.running || !scene || !this.player) {
-      return;
-    }
-
-    const elapsed = (time - this.state.startedAt) / 1000;
-    const remaining = Math.max(0, Math.ceil(this.options.durationSec - elapsed));
-    if (remaining !== this.state.lastSecond) {
-      this.state.lastSecond = remaining;
-      this.state.remainingSec = remaining;
-      this.updateHud();
-    }
-
-    if (remaining <= 0) {
+    if (this.state.remainingSec <= 0) {
       this.complete(this.buildResult());
       return;
     }
 
-    const speedFactor = 1 + Math.min(elapsed / 28, 1.15);
-    this.updateParallax(scene, delta, speedFactor);
-    this.handleMovement();
-    this.state.score += delta * (0.034 + speedFactor * 0.004);
-    this.recycleGroups(this.obstacles, -130);
-    this.recycleGroups(this.collectibles, -90);
+    this.updatePlayer(dt);
+    this.updateSkyline(dt, elapsed);
+    this.updateLanes(dt);
+    this.updateParticles(dt);
+    this.spawnObstacleAt -= dt;
+    this.spawnCollectibleAt -= dt;
+
+    if (this.spawnObstacleAt <= 0) {
+      this.spawnObstacle(elapsed);
+      this.spawnObstacleAt = 0.72 + Math.random() * 0.4;
+    }
+
+    if (this.spawnCollectibleAt <= 0) {
+      this.spawnCollectible(elapsed);
+      this.spawnCollectibleAt = 0.55 + Math.random() * 0.65;
+    }
+
+    const speedFactor = 1 + Math.min(elapsed / 24, 1.2);
+    const travel = (310 + speedFactor * 90) * dt;
+
+    this.obstacles.forEach((obstacle) => {
+      obstacle.x -= travel * obstacle.speedFactor;
+    });
+    this.collectibles.forEach((item) => {
+      item.x -= travel * item.speedFactor;
+      item.phase += dt * item.floatSpeed;
+    });
+
+    this.handleCollisions(timestamp);
+    this.obstacles = this.obstacles.filter((obstacle) => obstacle.x + obstacle.width > -80);
+    this.collectibles = this.collectibles.filter((item) => item.x + item.size > -50 && !item.collected);
+
+    this.state.score += dt * (38 + speedFactor * 9);
   }
 
-  handleMovement() {
-    if (!this.player || !this.player.body) {
-      return;
+  updatePlayer(dt) {
+    const move = this.control.right && !this.control.left ? 1 : this.control.left && !this.control.right ? -1 : 0;
+    this.player.x = clamp(this.player.x + move * 280 * dt, 72, this.world.width - 72);
+    this.player.angle += (move * 0.18 - this.player.angle) * 0.18;
+    this.player.vy += 1800 * dt;
+    this.player.y += this.player.vy * dt;
+
+    const groundTop = this.world.groundY - this.player.height;
+    const onGround = this.player.y >= groundTop;
+    if (onGround) {
+      this.player.y = groundTop;
+      this.player.vy = 0;
     }
 
-    const leftPressed =
-      this.touch.left ||
-      this.cursors.left.isDown ||
-      (this.keys.A && this.keys.A.isDown);
-    const rightPressed =
-      this.touch.right ||
-      this.cursors.right.isDown ||
-      (this.keys.D && this.keys.D.isDown);
-
-    const velocityX = rightPressed && !leftPressed ? 240 : leftPressed && !rightPressed ? -240 : 0;
-    this.player.setVelocityX(velocityX);
-    this.player.setAngle(velocityX * 0.022);
-
-    const jumpPressed =
-      this.touch.jumpQueued ||
-      Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
-      Phaser.Input.Keyboard.JustDown(this.cursors.space) ||
-      (this.keys.W && Phaser.Input.Keyboard.JustDown(this.keys.W)) ||
-      (this.keys.SPACE && Phaser.Input.Keyboard.JustDown(this.keys.SPACE));
-
-    const onGround = this.player.body.blocked.down || this.player.body.touching.down;
-    if (jumpPressed && onGround) {
-      this.player.setVelocityY(-610);
+    if (this.control.jumpQueued && onGround) {
+      this.player.vy = -620;
+      this.emitEvent("jump");
     }
 
-    if (this.touch.jumpQueued) {
-      this.touch.jumpQueued = false;
-    }
+    this.control.jumpQueued = false;
   }
 
-  updateParallax(scene, delta, speedFactor) {
-    const speed = delta * 0.001 * speedFactor;
-
-    if (this.bgBuildings) {
-      this.bgBuildings.forEach((tower) => {
-        tower.x -= 34 * speed;
-        if (tower.x < -140) {
-          tower.x = scene.scale.width + Math.random() * 90;
-          tower.y = scene.scale.height * 0.48 + Math.random() * 40;
-        }
-      });
-    }
-
-    if (this.bgBands) {
-      this.bgBands.forEach((band, i) => {
-        band.alpha = 0.04 + i * 0.02 + Math.sin(scene.time.now * 0.0014 + i * 1.2) * 0.02;
-      });
-    }
-
-    if (this.roadLines) {
-      this.roadLines.forEach((line) => {
-        line.x -= 380 * speed;
-        if (line.x < -26) {
-          line.x = scene.scale.width + Math.random() * 40;
-        }
-      });
-    }
-
-    if (this.roadGlow) {
-      this.roadGlow.alpha = 0.15 + Math.sin(scene.time.now * 0.0036) * 0.05;
-    }
-  }
-
-  recycleGroups(group, minX) {
-    if (!group) {
-      return;
-    }
-    group.children.iterate((entry) => {
-      if (entry && entry.active && entry.x < minX) {
-        entry.destroy();
+  updateSkyline(dt, elapsed) {
+    const speed = 22 + Math.min(elapsed * 1.8, 40);
+    this.skyline.forEach((tower) => {
+      tower.x -= speed * dt;
+      if (tower.x + tower.width < -12) {
+        tower.x = this.world.width + Math.random() * 90;
+        tower.height = 90 + Math.random() * 120;
+        tower.y = 195 + Math.random() * 55;
       }
     });
+  }
+
+  updateLanes(dt) {
+    this.lanes.forEach((lane) => {
+      lane.x -= 420 * dt;
+      if (lane.x + lane.width < -20) {
+        lane.x = this.world.width + Math.random() * 50;
+      }
+    });
+  }
+
+  updateParticles(dt) {
+    this.particles.forEach((particle) => {
+      particle.x += particle.vx * dt;
+      particle.y += particle.vy * dt;
+      if (particle.y > this.world.height + 10 || particle.x < -10) {
+        particle.x = this.world.width + Math.random() * 40;
+        particle.y = -10 - Math.random() * 30;
+      }
+    });
+  }
+
+  spawnObstacle(elapsed) {
+    const drone = Math.random() < 0.28;
+    const height = drone ? 22 : Math.random() < 0.45 ? 72 : 52;
+    const width = drone ? 58 : 50;
+    this.obstacles.push({
+      kind: drone ? "drone" : "block",
+      x: this.world.width + 60,
+      y: drone ? this.world.groundY - 130 - Math.random() * 45 : this.world.groundY - height,
+      width,
+      height,
+      speedFactor: 1 + Math.min(elapsed / 22, 1.1) + Math.random() * 0.2
+    });
+  }
+
+  spawnCollectible(elapsed) {
+    this.collectibles.push({
+      x: this.world.width + 50,
+      y: this.world.groundY - 120 - Math.random() * 130,
+      size: 18 + Math.random() * 8,
+      phase: Math.random() * Math.PI * 2,
+      floatSpeed: 3 + Math.random() * 2,
+      speedFactor: 0.9 + Math.min(elapsed / 28, 0.6),
+      collected: false
+    });
+  }
+
+  handleCollisions(timestamp) {
+    const playerBox = {
+      x: this.player.x - 20,
+      y: this.player.y + 6,
+      width: 40,
+      height: this.player.height - 8
+    };
+
+    this.collectibles.forEach((item) => {
+      const bobY = item.y + Math.sin(item.phase) * 10;
+      if (
+        !item.collected &&
+        playerBox.x < item.x + item.size &&
+        playerBox.x + playerBox.width > item.x - item.size &&
+        playerBox.y < bobY + item.size &&
+        playerBox.y + playerBox.height > bobY - item.size
+      ) {
+        item.collected = true;
+        this.state.energy += 1;
+        this.state.score += 150;
+        this.state.flash = 0.45;
+        this.emitEvent("collect");
+      }
+    });
+
+    if (timestamp < this.state.invulnUntil) {
+      return;
+    }
+
+    for (const obstacle of this.obstacles) {
+      if (
+        playerBox.x < obstacle.x + obstacle.width &&
+        playerBox.x + playerBox.width > obstacle.x &&
+        playerBox.y < obstacle.y + obstacle.height &&
+        playerBox.y + playerBox.height > obstacle.y
+      ) {
+        this.state.invulnUntil = timestamp + 900;
+        this.state.hits += 1;
+        this.state.score = Math.max(0, this.state.score - 190);
+        this.player.vy = -380;
+        this.state.flash = 0.8;
+        obstacle.x = -200;
+        this.emitEvent("hit");
+        break;
+      }
+    }
+  }
+
+  draw(timestamp) {
+    if (!this.ctx) {
+      return;
+    }
+
+    const { width, height, groundY } = this.world;
+    const ctx = this.ctx;
+    const auraRgb = hueToRgb(this.options.avatarHue || 205);
+    const heroSoft = rgba(auraRgb, 0.28);
+
+    ctx.clearRect(0, 0, width, height);
+
+    const sky = ctx.createLinearGradient(0, 0, 0, height);
+    sky.addColorStop(0, this.palette.skyTop);
+    sky.addColorStop(1, this.palette.skyBottom);
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, width, height);
+
+    const halo = ctx.createRadialGradient(width * 0.5, 60, 20, width * 0.5, 60, 260);
+    halo.addColorStop(0, rgba(auraRgb, 0.12));
+    halo.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = halo;
+    ctx.fillRect(0, 0, width, height);
+
+    this.bands.forEach((band, index) => {
+      ctx.fillStyle = rgba(auraRgb, band.alpha + Math.sin(timestamp * 0.001 + index) * 0.01);
+      ctx.fillRect(0, band.y, width, 3);
+    });
+
+    this.skyline.forEach((tower) => {
+      ctx.fillStyle = this.palette.building;
+      ctx.globalAlpha = tower.alpha;
+      ctx.fillRect(tower.x, tower.y, tower.width, tower.height);
+      ctx.globalAlpha = tower.alpha * 0.6;
+      ctx.fillStyle = this.palette.lane;
+      ctx.fillRect(tower.x + 8, tower.y + 12, tower.width - 16, 5);
+      ctx.fillRect(tower.x + 8, tower.y + 26, tower.width - 16, 3);
+      ctx.globalAlpha = 1;
+    });
+
+    ctx.fillStyle = this.palette.road;
+    ctx.beginPath();
+    ctx.moveTo(0, groundY + 8);
+    ctx.lineTo(width, groundY + 8);
+    ctx.lineTo(width + 40, height);
+    ctx.lineTo(-40, height);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = rgba(auraRgb, 0.15);
+    ctx.fillRect(0, groundY + 10, width, 8);
+
+    this.lanes.forEach((lane) => {
+      ctx.fillStyle = this.palette.lane;
+      ctx.globalAlpha = 0.72;
+      ctx.fillRect(lane.x, groundY + 32, lane.width, 7);
+      ctx.globalAlpha = 1;
+    });
+
+    this.particles.forEach((particle) => {
+      ctx.fillStyle = `rgba(220, 245, 255, ${particle.alpha})`;
+      ctx.fillRect(particle.x, particle.y, particle.size, particle.size * 6);
+    });
+
+    this.collectibles.forEach((item) => {
+      const bobY = item.y + Math.sin(item.phase) * 10;
+      const glow = ctx.createRadialGradient(item.x, bobY, 2, item.x, bobY, item.size * 1.6);
+      glow.addColorStop(0, this.palette.laneSoft);
+      glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(item.x, bobY, item.size * 1.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = this.palette.lane;
+      ctx.beginPath();
+      ctx.arc(item.x, bobY, item.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.7)";
+      ctx.beginPath();
+      ctx.arc(item.x - item.size * 0.25, bobY - item.size * 0.25, item.size * 0.28, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    this.obstacles.forEach((obstacle) => {
+      if (obstacle.kind === "drone") {
+        ctx.fillStyle = this.palette.drone;
+        ctx.fillRect(obstacle.x, obstacle.y + 6, obstacle.width, obstacle.height - 6);
+        ctx.fillStyle = "rgba(20, 30, 50, 0.7)";
+        ctx.fillRect(obstacle.x + 8, obstacle.y + 10, obstacle.width - 16, obstacle.height - 12);
+      } else {
+        ctx.fillStyle = this.palette.obstacle;
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        ctx.fillStyle = "rgba(35, 20, 32, 0.45)";
+        ctx.fillRect(obstacle.x + 7, obstacle.y + 8, obstacle.width - 14, obstacle.height - 14);
+      }
+    });
+
+    const playerX = this.player.x;
+    const playerY = this.player.y;
+    const style = this.avatarStyle;
+    const grounded = this.player.y >= this.world.groundY - this.player.height - 1;
+    const stride = grounded ? Math.sin(timestamp * 0.018) : Math.sin(timestamp * 0.008) * 0.22;
+    const armSwing = stride * 16;
+    const legSwing = stride * 18;
+    const headX = playerX;
+    const headY = playerY + 20;
+    const hipY = playerY + 72;
+    const shoulderY = playerY + 40;
+
+    ctx.save();
+    ctx.translate(playerX, playerY + this.player.height * 0.5);
+    ctx.rotate(this.player.angle);
+    ctx.translate(-playerX, -(playerY + this.player.height * 0.5));
+
+    ctx.fillStyle = heroSoft;
+    ctx.beginPath();
+    ctx.ellipse(playerX, playerY + this.player.height - 6, 34, 13, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = style.suitDeep;
+    ctx.lineWidth = 8;
+    ctx.lineCap = "round";
+
+    ctx.beginPath();
+    ctx.moveTo(playerX - 6, hipY);
+    ctx.lineTo(playerX - 12 + legSwing, playerY + 97);
+    ctx.moveTo(playerX + 6, hipY);
+    ctx.lineTo(playerX + 12 - legSwing, playerY + 97);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(playerX - 14, shoulderY);
+    ctx.lineTo(playerX - 24 - armSwing, playerY + 62);
+    ctx.moveTo(playerX + 14, shoulderY);
+    ctx.lineTo(playerX + 24 + armSwing, playerY + 62);
+    ctx.stroke();
+
+    ctx.fillStyle = style.skin;
+    ctx.beginPath();
+    ctx.arc(playerX - 24 - armSwing, playerY + 62, 4.5, 0, Math.PI * 2);
+    ctx.arc(playerX + 24 + armSwing, playerY + 62, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = style.suit;
+    roundedRectPath(ctx, playerX - 20, playerY + 30, 40, 46, 14);
+    ctx.fill();
+
+    ctx.fillStyle = style.accentSoft;
+    roundedRectPath(ctx, playerX - 5, playerY + 33, 10, 34, 5);
+    ctx.fill();
+
+    ctx.fillStyle = style.skin;
+    ctx.fillRect(playerX - 4, playerY + 24, 8, 10);
+    ctx.beginPath();
+    ctx.arc(headX, headY, 18, 0, Math.PI * 2);
+    ctx.fill();
+
+    drawHair(ctx, style, headX, headY - 1, 19);
+
+    if (style.visor) {
+      ctx.strokeStyle = style.accent;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(headX - 11, headY + 1);
+      ctx.lineTo(headX + 11, headY + 1);
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = "rgba(20, 32, 50, 0.8)";
+      ctx.beginPath();
+      ctx.arc(headX - 6, headY + 1, 1.8, 0, Math.PI * 2);
+      ctx.arc(headX + 6, headY + 1, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = "rgba(255,255,255,0.22)";
+    ctx.beginPath();
+    ctx.arc(playerX - 5, playerY + 12, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (timestamp < this.state.invulnUntil) {
+      ctx.strokeStyle = "rgba(255, 180, 180, 0.9)";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(playerX - 26, playerY - 6, 52, 104);
+    }
+    ctx.restore();
+
+    if (this.state.flash > 0) {
+      ctx.fillStyle = `rgba(255,255,255,${this.state.flash * 0.22})`;
+      ctx.fillRect(0, 0, width, height);
+    }
+  }
+
+  updateHud() {
+    if (this.options.elTime) {
+      this.options.elTime.textContent = `Tempo: ${String(this.state.remainingSec).padStart(2, "0")}s`;
+    }
+    if (this.options.elEnergy) {
+      this.options.elEnergy.textContent = `Energia coletada: ${this.state.energy}`;
+    }
+    if (this.options.elHits) {
+      this.options.elHits.textContent = `Colisoes: ${this.state.hits}`;
+    }
   }
 
   buildResult() {
@@ -651,67 +815,9 @@ export class RunnerMiniGame {
     };
   }
 
-  setupTouchControls() {
-    const bindHold = (button, key) => {
-      if (!button) {
-        return;
-      }
-      const onDown = (event) => {
-        event.preventDefault();
-        this.touch[key] = true;
-      };
-      const onUp = (event) => {
-        event.preventDefault();
-        this.touch[key] = false;
-      };
-
-      button.addEventListener("pointerdown", onDown, { passive: false });
-      button.addEventListener("pointerup", onUp, { passive: false });
-      button.addEventListener("pointercancel", onUp, { passive: false });
-      button.addEventListener("pointerleave", onUp, { passive: false });
-
-      this.cleanupFns.push(() => {
-        button.removeEventListener("pointerdown", onDown);
-        button.removeEventListener("pointerup", onUp);
-        button.removeEventListener("pointercancel", onUp);
-        button.removeEventListener("pointerleave", onUp);
-      });
-    };
-
-    bindHold(this.options.touchLeft, "left");
-    bindHold(this.options.touchRight, "right");
-
-    if (this.options.touchJump) {
-      const onJump = (event) => {
-        event.preventDefault();
-        this.touch.jumpQueued = true;
-      };
-      this.options.touchJump.addEventListener("pointerdown", onJump, { passive: false });
-      this.cleanupFns.push(() => this.options.touchJump.removeEventListener("pointerdown", onJump));
-    }
-  }
-
-  updateHud() {
-    if (this.options.elTime) {
-      this.options.elTime.textContent = `Tempo: ${String(this.state.remainingSec).padStart(2, "0")}s`;
-    }
-    if (this.options.elEnergy) {
-      this.options.elEnergy.textContent = `Energia coletada: ${this.state.energy}`;
-    }
-    if (this.options.elHits) {
-      this.options.elHits.textContent = `Colisoes: ${this.state.hits}`;
-    }
-  }
-
   failSafe(error) {
     console.error("Runner fail-safe:", error);
-    const result = {
-      score: Math.max(0, Math.round(this.state.score || 0)),
-      energy: Number(this.state.energy) || 0,
-      hits: Math.max(1, Number(this.state.hits) || 1),
-      batteryDelta: -12
-    };
-    this.complete(result);
+    this.startFallback();
   }
 
   complete(result) {
@@ -719,6 +825,7 @@ export class RunnerMiniGame {
       return;
     }
     this.completed = true;
+    this.emitEvent("finish", result);
     this.teardown({ notify: true, result });
   }
 
@@ -728,41 +835,21 @@ export class RunnerMiniGame {
     }
 
     this.running = false;
-
-    if (this.obstacleEvent) {
-      this.obstacleEvent.remove(false);
-      this.obstacleEvent = null;
-    }
-    if (this.collectEvent) {
-      this.collectEvent.remove(false);
-      this.collectEvent = null;
+    if (this.frameId) {
+      window.cancelAnimationFrame(this.frameId);
+      this.frameId = null;
     }
 
     this.cleanupFns.forEach((fn) => fn());
     this.cleanupFns = [];
 
-    this.touch.left = false;
-    this.touch.right = false;
-    this.touch.jumpQueued = false;
+    this.control.left = false;
+    this.control.right = false;
+    this.control.jumpQueued = false;
 
-    if (this.weatherEmitter) {
-      if (typeof this.weatherEmitter.stop === "function") {
-        this.weatherEmitter.stop();
-      }
-      if (typeof this.weatherEmitter.destroy === "function") {
-        this.weatherEmitter.destroy();
-      }
-      this.weatherEmitter = null;
-    }
-
-    if (this.game) {
-      this.game.destroy(true);
-      this.game = null;
-    }
     if (this.options.canvas) {
       this.options.canvas.innerHTML = "";
     }
-    this.scene = null;
 
     if (notify && typeof this.options.onFinish === "function") {
       const payload = result || this.buildResult();
