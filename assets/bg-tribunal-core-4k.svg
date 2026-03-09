@@ -1,0 +1,38 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='3840' height='2160' viewBox='0 0 3840 2160' role='img' aria-label='TRIBUNAL SINTETICO'>
+  <defs>
+    <linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0%' stop-color='#111a2a'/>
+      <stop offset='100%' stop-color='#1f4258'/>
+    </linearGradient>
+    <radialGradient id='g2' cx='78%' cy='20%' r='46%'>
+      <stop offset='0%' stop-color='#8ee8ff' stop-opacity='0.54'/>
+      <stop offset='100%' stop-color='#8ee8ff' stop-opacity='0'/>
+    </radialGradient>
+    <filter id='grain'>
+      <feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' stitchTiles='stitch'/>
+      <feColorMatrix type='saturate' values='0'/>
+      <feComponentTransfer>
+        <feFuncA type='table' tableValues='0 0.06'/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width='3840' height='2160' fill='url(#g1)'/>
+  <rect width='3840' height='2160' fill='url(#g2)'/>
+  <path d='M0 1310C520 1150 970 1220 1440 1360C1870 1490 2360 1580 2870 1440C3220 1340 3530 1220 3840 1280V2160H0Z' fill='#071724' opacity='0.56'/>
+  <path d='M0 1640C520 1500 1030 1480 1500 1570C1960 1660 2470 1820 2980 1760C3330 1710 3590 1620 3840 1660V2160H0Z' fill='#031018' opacity='0.72'/>
+  <g opacity='0.2'>
+    <path d='M0 1040H3840' stroke='#ffffff' stroke-width='2'/>
+    <path d='M0 1180H3840' stroke='#ffffff' stroke-width='2'/>
+    <path d='M0 1320H3840' stroke='#ffffff' stroke-width='2'/>
+    <path d='M480 0V2160' stroke='#ffffff' stroke-width='2'/>
+    <path d='M960 0V2160' stroke='#ffffff' stroke-width='2'/>
+    <path d='M1440 0V2160' stroke='#ffffff' stroke-width='2'/>
+    <path d='M1920 0V2160' stroke='#ffffff' stroke-width='2'/>
+    <path d='M2400 0V2160' stroke='#ffffff' stroke-width='2'/>
+    <path d='M2880 0V2160' stroke='#ffffff' stroke-width='2'/>
+    <path d='M3360 0V2160' stroke='#ffffff' stroke-width='2'/>
+  </g>
+  <rect width='3840' height='2160' filter='url(#grain)'/>
+  <text x='180' y='1910' fill='#e6f6ff' font-family='Segoe UI, sans-serif' font-size='96' font-weight='700' opacity='0.88'>TRIBUNAL SINTETICO</text>
+  <text x='180' y='2015' fill='#d4e8ef' font-family='Segoe UI, sans-serif' font-size='48' opacity='0.72'>Nucleo decisorio de IA e governanca</text>
+</svg>

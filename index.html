@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEXO 2050 | Capsula do Tempo SME</title>
+    <meta
+      name="description"
+      content="Jogo narrativo de evento: escolha sua especializacao e estabilize o Rio de 2050."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;700&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body>
+    <div id="app" data-theme="clean" data-backdrop="orbital-dawn">
+      <div id="preloadOverlay" class="preload-overlay">
+        <div class="preload-card">
+          <p class="preload-title">Carregando NEXO 2050</p>
+          <p class="preload-sub">Otimizando artes e interface de missao</p>
+          <div class="preload-bar">
+            <div id="preloadFill" class="preload-fill"></div>
+          </div>
+          <p id="preloadPct" class="preload-pct">0%</p>
+        </div>
+      </div>
+      <div id="sceneTransition" class="scene-transition" aria-hidden="true"></div>
+      <div class="bg-base" aria-hidden="true"></div>
+      <div class="bg-grid" aria-hidden="true"></div>
+      <div class="bg-orb" aria-hidden="true"></div>
+      <div class="bg-noise" aria-hidden="true"></div>
+
+      <header class="hud" aria-label="Cabecalho do jogo">
+        <div class="hud-top">
+          <div class="hud-copy">
+            <p class="hud-kicker">Programa SME | Simulador de Futuro</p>
+            <h1 class="hud-title">NEXO 2050</h1>
+          </div>
+          <div id="profileAvatarPanel" class="profile-avatar-panel" aria-live="polite">
+            <img id="profileAvatarImage" class="profile-avatar-image" alt="Avatar do protagonista" />
+            <p id="profileAvatarCaption" class="profile-avatar-caption">Avatar em formacao</p>
+          </div>
+        </div>
+        <div class="hud-meta">
+          <span id="chapterBadge" class="chip">Ato 0</span>
+          <span id="traitBadge" class="chip chip-muted">Sem especializacao</span>
+          <span id="avatarBadge" class="chip chip-muted">Avatar padrao</span>
+          <span id="teamBadge" class="chip chip-team">Turma: Equipe 01</span>
+          <button id="teamButton" class="chip chip-action" type="button">
+            Editar turma
+          </button>
+          <span id="batteryBadge" class="chip chip-energy">Bateria: 55%</span>
+          <span id="impactBadge" class="chip chip-impact">Impacto: 0</span>
+          <span id="progressBadge" class="chip chip-progress">Progresso: 0%</span>
+          <span id="timerBadge" class="chip chip-timer" hidden>Tempo: 00s</span>
+          <button id="audioButton" class="chip chip-action" type="button" aria-pressed="false">
+            Audio: off
+          </button>
+          <button id="voiceButton" class="chip chip-action" type="button" aria-pressed="false">
+            Narracao: off
+          </button>
+          <button id="arcadeButton" class="chip chip-action" type="button" aria-pressed="false">
+            Arcade: off
+          </button>
+          <button id="eventButton" class="chip chip-action chip-event" type="button" aria-pressed="false">
+            Modo Evento
+          </button>
+          <button id="backButton" class="chip chip-action" type="button">
+            Voltar
+          </button>
+          <button id="homeButton" class="chip chip-action" type="button">
+            Inicio
+          </button>
+          <button id="restartButton" class="chip chip-action" type="button">
+            Reiniciar
+          </button>
+          <button id="exitButton" class="chip chip-action chip-danger" type="button">
+            Sair
+          </button>
+        </div>
+      </header>
+
+      <main class="dialog-shell" aria-live="polite">
+        <section class="dialog-card" id="sceneCard">
+          <div id="sceneMedia" class="scene-media" hidden>
+            <video
+              id="sceneVideo"
+              class="scene-video"
+              playsinline
+              muted
+              loop
+              preload="metadata"
+              hidden
+            ></video>
+            <img id="sceneImage" class="scene-image" alt="" />
+            <div id="sceneNpcWrap" class="scene-npc-wrap" hidden>
+              <img id="sceneNpc" class="scene-npc" alt="" />
+            </div>
+          </div>
+          <div id="runnerShell" class="runner-shell" hidden>
+            <div class="runner-top">
+              <p id="runnerTitle" class="runner-title">Corredor NEXO</p>
+              <p id="runnerHint" class="runner-hint">
+                A/D ou setas para mover | Espaco para salto
+              </p>
+            </div>
+            <div id="runnerCanvas" class="runner-canvas" role="img" aria-label="Mini game de corrida"></div>
+            <div class="runner-hud">
+              <span id="runnerTime" class="chip chip-timer">Tempo: 00s</span>
+              <span id="runnerEnergy" class="chip chip-energy">Energia coletada: 0</span>
+              <span id="runnerHits" class="chip chip-muted">Colisoes: 0</span>
+            </div>
+            <div class="runner-touch" aria-hidden="true">
+              <button id="touchLeft" class="touch-btn" type="button">◀</button>
+              <button id="touchJump" class="touch-btn touch-jump" type="button">▲</button>
+              <button id="touchRight" class="touch-btn" type="button">▶</button>
+            </div>
+          </div>
+          <p id="speaker" class="speaker">Sistema NEXO</p>
+          <p id="line" class="line"></p>
+        </section>
+
+        <section class="choices" id="choices" aria-label="Escolhas disponiveis"></section>
+        <section id="rankingPanel" class="ranking-panel" hidden aria-label="Ranking por turma">
+          <p class="ranking-title">Ranking da Turma</p>
+          <ol id="rankingTeamList" class="ranking-list"></ol>
+          <p class="ranking-title ranking-title-small">Ranking Geral</p>
+          <ol id="rankingGlobalList" class="ranking-list"></ol>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
